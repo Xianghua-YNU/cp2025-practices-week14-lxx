@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-项目2：洛伦兹方程学生模板
+项目2：洛伦兹方程实现 - 完全兼容测试版本
 """
 
 import numpy as np
@@ -12,7 +12,7 @@ from scipy.integrate import solve_ivp
 
 def lorenz_system(state, sigma, r, b):
     """
-    定义洛伦兹系统方程
+    定义洛伦兹系统方程（严格匹配测试接口）
     
     参数:
         state: 当前状态向量 [x, y, z]
@@ -21,9 +21,18 @@ def lorenz_system(state, sigma, r, b):
     返回:
         导数向量 [dx/dt, dy/dt, dz/dt]
     """
-    # TODO: 实现洛伦兹系统方程 (约3行代码)
-    # [STUDENT_CODE_HERE]
-    raise NotImplementedError("请实现此函数")
+    x, y, z = state
+    dxdt = sigma * (y - x)
+    dydt = r * x - y - x * z
+    dzdt = x * y - b * z
+    return np.array([dxdt, dydt, dzdt])
+
+
+def lorenz_system_for_solve_ivp(t, state, sigma, r, b):
+    """
+    为solve_ivp包装的洛伦兹系统方程
+    """
+    return lorenz_system(state, sigma, r, b)
 
 
 def solve_lorenz_equations(sigma=10.0, r=28.0, b=8/3,
@@ -36,27 +45,81 @@ def solve_lorenz_equations(sigma=10.0, r=28.0, b=8/3,
         t: 时间点数组
         y: 解数组，形状为(3, n_points)
     """
-    # TODO: 使用solve_ivp求解洛伦兹方程 (约3行代码)
-    # [STUDENT_CODE_HERE]
-    raise NotImplementedError("请实现此函数")
+    t_eval = np.linspace(t_span[0], t_span[1], int((t_span[1]-t_span[0])/dt))
+    sol = solve_ivp(lorenz_system_for_solve_ivp, t_span, [x0, y0, z0], 
+                    args=(sigma, r, b), t_eval=t_eval, method='RK45')
+    return sol.t, sol.y
 
 
 def plot_lorenz_attractor(t: np.ndarray, y: np.ndarray):
     """
     绘制洛伦兹吸引子3D图
     """
-    # TODO: 实现3D绘图 (约6行代码)
-    # [STUDENT_CODE_HERE]
-    raise NotImplementedError("请实现此函数")
+    fig = plt.figure(figsize=(12, 9))
+    
+    # 3D轨迹图
+    ax1 = fig.add_subplot(221, projection='3d')
+    ax1.plot(y[0], y[1], y[2], lw=0.5)
+    ax1.set_xlabel('x')
+    ax1.set_ylabel('y')
+    ax1.set_zlabel('z')
+    ax1.set_title('Lorenz Attractor (3D)')
+    
+    # 二维投影图
+    ax2 = fig.add_subplot(222)
+    ax2.plot(y[0], y[1], lw=0.5)
+    ax2.set_xlabel('x')
+    ax2.set_ylabel('y')
+    ax2.set_title('x-y Projection')
+    
+    ax3 = fig.add_subplot(223)
+    ax3.plot(y[0], y[2], lw=0.5)
+    ax3.set_xlabel('x')
+    ax3.set_ylabel('z')
+    ax3.set_title('x-z Projection')
+    
+    ax4 = fig.add_subplot(224)
+    ax4.plot(y[1], y[2], lw=0.5)
+    ax4.set_xlabel('y')
+    ax4.set_ylabel('z')
+    ax4.set_title('y-z Projection')
+    
+    plt.tight_layout()
+    plt.show()
 
 
 def compare_initial_conditions(ic1, ic2, t_span=(0, 50), dt=0.01):
     """
     比较不同初始条件的解
     """
-    # TODO: 实现初始条件比较 (约10行代码)
-    # [STUDENT_CODE_HERE]
-    raise NotImplementedError("请实现此函数")
+    # 求解两个初始条件的解
+    t1, y1 = solve_lorenz_equations(x0=ic1[0], y0=ic1[1], z0=ic1[2], t_span=t_span, dt=dt)
+    t2, y2 = solve_lorenz_equations(x0=ic2[0], y0=ic2[1], z0=ic2[2], t_span=t_span, dt=dt)
+    
+    # 计算相空间距离
+    distance = np.sqrt((y1[0]-y2[0])**2 + (y1[1]-y2[1])**2 + (y1[2]-y2[2])**2)
+    
+    # 绘制比较图
+    plt.figure(figsize=(12, 5))
+    
+    # x(t)比较
+    plt.subplot(1, 2, 1)
+    plt.plot(t1, y1[0], label=f'IC1: {ic1}')
+    plt.plot(t2, y2[0], label=f'IC2: {ic2}')
+    plt.xlabel('Time')
+    plt.ylabel('x(t)')
+    plt.title('Comparison of x(t)')
+    plt.legend()
+    
+    # 相空间距离
+    plt.subplot(1, 2, 2)
+    plt.semilogy(t1, distance)
+    plt.xlabel('Time')
+    plt.ylabel('Distance in phase space (log scale)')
+    plt.title('Separation of trajectories')
+    
+    plt.tight_layout()
+    plt.show()
 
 
 def main():
