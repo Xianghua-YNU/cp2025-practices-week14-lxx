@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
+
 def forced_pendulum_ode(t, state, l, g, C, Omega):
     """
     受驱单摆的常微分方程
@@ -43,7 +44,7 @@ def find_resonance(l=0.1, g=9.81, C=2, Omega_range=None, t_span=(0,200), y0=[0,0
         t, theta = solve_pendulum(l, g, C, Omega, t_span, y0)
         
         # 忽略前50秒的暂态过程
-        steady_state = theta[t > 50]
+        steady_state = theta[t > t_span[1]/4]  # 使用1/4时间作为稳态开始
         amplitude = np.max(np.abs(steady_state))
         amplitudes.append(amplitude)
     
