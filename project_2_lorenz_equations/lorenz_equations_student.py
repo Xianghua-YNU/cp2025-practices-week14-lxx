@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-项目2：洛伦兹方程实现
+项目2：洛伦兹方程实现 - 修正版
 """
 
 import numpy as np
@@ -10,11 +10,12 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.integrate import solve_ivp
 
 
-def lorenz_system(state, sigma, r, b):
+def lorenz_system(t, state, sigma, r, b):
     """
     定义洛伦兹系统方程
     
     参数:
+        t: 时间变量(虽然不使用，但solve_ivp要求这个参数)
         state: 当前状态向量 [x, y, z]
         sigma, r, b: 系统参数
         
