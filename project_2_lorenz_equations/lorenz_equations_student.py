@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-项目2：洛伦兹方程实现 - 修正版
+项目2：洛伦兹方程实现 
 """
 
 import numpy as np
