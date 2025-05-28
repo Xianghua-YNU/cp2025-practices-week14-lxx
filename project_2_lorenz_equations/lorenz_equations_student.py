@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-项目2：洛伦兹方程实现 - 兼容测试版本
+项目2：洛伦兹方程实现 - 完全兼容测试版本
 """
 
 import numpy as np
@@ -10,32 +10,29 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.integrate import solve_ivp
 
 
-def lorenz_system(t_state, sigma=10.0, r=28.0, b=8/3):
+def lorenz_system(state, sigma, r, b):
     """
-    定义洛伦兹系统方程
+    定义洛伦兹系统方程（严格匹配测试接口）
     
     参数:
-        可以接受两种调用方式:
-        1. 为solve_ivp: lorenz_system(t, state, sigma, r, b)
-        2. 为测试代码: lorenz_system(state, sigma, r, b)
+        state: 当前状态向量 [x, y, z]
+        sigma, r, b: 系统参数
         
     返回:
         导数向量 [dx/dt, dy/dt, dz/dt]
     """
-    # 处理两种参数传递方式
-    if isinstance(t_state, (int, float)):
-        # solve_ivp调用方式: (t, state, sigma, r, b)
-        t, state = t_state, sigma
-        sigma, r, b = r, b, 8/3  # 最后一个参数b会被忽略
-    else:
-        # 测试代码调用方式: (state, sigma, r, b)
-        state = t_state
-    
     x, y, z = state
     dxdt = sigma * (y - x)
     dydt = r * x - y - x * z
     dzdt = x * y - b * z
-    return [dxdt, dydt, dzdt]
+    return np.array([dxdt, dydt, dzdt])
+
+
+def lorenz_system_for_solve_ivp(t, state, sigma, r, b):
+    """
+    为solve_ivp包装的洛伦兹系统方程
+    """
+    return lorenz_system(state, sigma, r, b)
 
 
 def solve_lorenz_equations(sigma=10.0, r=28.0, b=8/3,
@@ -49,7 +46,7 @@ def solve_lorenz_equations(sigma=10.0, r=28.0, b=8/3,
         y: 解数组，形状为(3, n_points)
     """
     t_eval = np.linspace(t_span[0], t_span[1], int((t_span[1]-t_span[0])/dt))
-    sol = solve_ivp(lorenz_system, t_span, [x0, y0, z0], 
+    sol = solve_ivp(lorenz_system_for_solve_ivp, t_span, [x0, y0, z0], 
                     args=(sigma, r, b), t_eval=t_eval, method='RK45')
     return sol.t, sol.y
 
